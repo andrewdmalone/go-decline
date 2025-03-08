@@ -1,4 +1,4 @@
-package models
+package forecast
 
 type Model interface {
 	SetParams(params []float64) error
