@@ -1,4 +1,4 @@
-package models
+package forecast
 
 import (
 	"errors"
@@ -30,4 +30,20 @@ func (h *Hyperbolic) SetParams(params []float64) error {
 
 func (h *Hyperbolic) Rate(dt float64) float64 {
 	return h.Qi * math.Pow(1+h.B*h.Di*dt, -1/h.B)
+}
+
+func (h *Hyperbolic) CumulativeVolume(dt float64) float64 {
+	return h.VolumeBetween(0, dt)
+}
+
+func (h *Hyperbolic) VolumeBetween(dtStart, dtEnd float64) float64 {
+	startingRate := h.Rate(dtStart)
+	endingRate := h.Rate(dtEnd)
+	firstTerm := math.Pow(startingRate, h.B) / ((1 - h.B) * h.DeclineRate(dtStart))
+	secondTerm := (math.Pow(startingRate, 1-h.B) - math.Pow(endingRate, 1-h.B)) * daysPerYear
+	return firstTerm * secondTerm
+}
+
+func (h *Hyperbolic) DeclineRate(dt float64) float64 {
+	return h.Di / (1 + h.B*h.Di*dt)
 }
