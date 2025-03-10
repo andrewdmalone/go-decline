@@ -3,10 +3,10 @@ package forecast
 type EndConditionType int
 
 const (
-	DeclineRate EndConditionType = iota
-	Rate
+	Rate EndConditionType = iota
 	Time
 	CumulativeVolume
+	DeclineRate
 )
 
 type EndCondition struct {
@@ -21,4 +21,8 @@ type ForecastSegment struct {
 
 func NewForecastSegment(Model Model, EndCondition EndCondition) *ForecastSegment {
 	return &ForecastSegment{Model: Model, EndCondition: EndCondition}
+}
+
+func (fs *ForecastSegment) DaysToSegmentEnd() float64 {
+	return 0.0
 }

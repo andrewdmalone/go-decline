@@ -10,7 +10,12 @@ type Exponential struct {
 	Di float64 // Initial decline rate
 }
 
-// Creates an exponential model
+/*
+Creates an exponential model
+
+	Qi (float64): Initial rate in bbl/day
+	Di (float64): Decline rate in 1/year
+*/
 func NewExponential(Qi, Di float64) *Exponential {
 	return &Exponential{Qi: Qi, Di: Di}
 }
@@ -49,4 +54,23 @@ func (e *Exponential) VolumeBetween(dtStart, dtEnd float64) float64 {
 // Calculate the Decline Rate at a given point in time, dt
 func (e *Exponential) DeclineRate(dt float64) float64 {
 	return e.Di
+}
+
+func (e *Exponential) TimeToEndCondition(endCondition EndCondition) float64 {
+	var dt float64
+	switch endCondition.EndConditionType {
+	case Rate:
+		dt = math.Log(e.Qi/endCondition.Value) / e.Di
+	case Time:
+		dt = endCondition.Value
+	case CumulativeVolume:
+		dt = -(1 / e.Di) * math.Log(1-endCondition.Value*e.Di/e.Qi)
+	case DeclineRate:
+		if endCondition.Value == e.Di {
+			dt = 0
+		} else {
+			dt = math.Inf(1)
+		}
+	}
+	return dt
 }
